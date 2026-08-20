@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Information System — SIS</title>
+    <!-- Google Fonts & Font Awesome for icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #f4f7fc;
+            color: #1e293b;
+            line-height: 1.5;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+        }
+
+        .sis-container {
+            max-width: 1400px;
+            width: 100%;
+            background: white;
+            border-radius: 2rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* header */
+        .sis-header {
+            background: #0f172a;
+            color: white;
+            padding: 1.5rem 2rem;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+        }
+
+        .sis-header h1 {
+            font-weight: 700;
+            font-size: 1.8rem;
+            letter-spacing: -0.02em;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .sis-header h1 i {
+            color: #38bdf8;
+        }
+
+        .student-badge {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(4px);
+            padding: 0.5rem 1.25rem;
+            border-radius: 40px;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-weight: 500;
+        }
+
+        .student-badge i {
+            color: #fbbf24;
+        }
+
+        /* tab navigation */
+        .tab-nav {
+            display: flex;
+            flex-wrap: wrap;
+            background: white;
+            border-bottom: 1px solid #e2e8f0;
+            padding: 0 1.5rem;
+        }
+
+        .tab-btn {
+            background: transparent;
+            border: none;
+            padding: 1rem 1.5rem;
+            font-weight: 600;
+            font-size: 1rem;
+            color: #64748b;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            border-bottom: 3px solid transparent;
+            transition: 0.2s;
+            margin-bottom: -1px;
+        }
+
+        .tab-btn i {
+            font-size: 1.1rem;
+        }
+        .tab-btn:hover {
+            color: #0f172a;
+            background: #f8fafc;
+        }
+        .tab-btn.active {
+            color: #2563eb;
+            border-bottom-color: #2563eb;
+            background: #f8fafc;
+        }
+
+        /* main content */
+        .main-content {
+            padding: 2rem;
+            background: #f8fafc;
+            flex: 1;
+        }
+
+        .tab-panel {
+            display: none;
+            animation: fade 0.25s ease;
+        }
+        .tab-panel.active {
+            display: block;
+        }
+        @keyframes fade {
+            from {opacity: 0; transform: translateY(5px);}
+            to {opacity: 1; transform: translateY(0);}
+        }
+
+        /* cards & layout */
+        .grid-2col {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .card {
+            background: white;
+            border-radius: 1.25rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+            border: 1px solid #e9eef2;
+        }
+        .card h3 {
+            font-size: 1.2rem;
+            margin-bottom: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #0f172a;
+        }
+        .card h3 i {
+            color: #2563eb;
+        }
+
+        .enrollment-list, .advising-list {
+            list-style: none;
+        }
+        .enrollment-list li, .advising-list li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.8rem 0.2rem;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        .enrollment-list li:last-child, .advising-list li:last-child {
+            border-bottom: none;
+        }
+        .course-code {
+            font-weight: 700;
+            color: #1e293b;
+        }
+        .badge {
+            background: #dcfce7;
+            color: #166534;
+            padding: 0.2rem 0.7rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        .badge.warning {
+            background: #fef9c3;
+            color: #854d0e;
+        }
+
+        .grade-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .grade-table th {
+            text-align: left;
+            font-weight: 600;
+            color: #475569;
+            padding: 0.6rem 0.4rem;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        .grade-table td {
+            padding: 0.7rem 0.4rem;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .btn {
+            background: white;
+            border: 1px solid #cbd5e1;
+            padding: 0.5rem 1.2rem;
+            border-radius: 2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .btn-primary {
+            background: #2563eb;
+            color: white;
+            border: none;
+        }
+        .btn-primary:hover {
+            background: #1d4ed8;
+        }
+        .btn-outline:hover {
+            background: #f1f5f9;
+        }
+        .btn-sm {
+            padding: 0.35rem 0.9rem;
+            font-size: 0.85rem;
+        }
+        .btn-danger {
+            background: #fee2e2;
+            color: #b91c1c;
+            border: 1px solid #fecaca;
+        }
+        .btn-danger:hover {
+            background: #fecaca;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        .form-group label {
+            font-weight: 500;
+            display: block;
+            margin-bottom: 0.3rem;
+        }
+        .form-control {
+            width: 100%;
+            padding: 0.7rem 1rem;
+            border: 1px solid #cbd5e1;
+            border-radius: 0.8rem;
+            font-size: 0.95rem;
+        }
+        select.form-control {
+            background: white;
+        }
+        .flex-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .gpa-circle {
+            display: inline-block;
+            background: #e0e7ff;
+            color: #1e3a8a;
+            font-weight: 700;
+            font-size: 1.3rem;
+            width: 60px;
+            height: 60px;
+            line-height: 60px;
+            text-align: center;
+            border-radius: 50%;
+        }
+
+        .advisor-note {
+            background: #f1f5f9;
+            border-left: 4px solid #2563eb;
+            padding: 1rem;
+            border-radius: 0.75rem;
+            margin-top: 1rem;
+        }
+
+        footer {
+            background: white;
+            padding: 1rem 2rem;
+            border-top: 1px solid #e2e8f0;
+            text-align: center;
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="sis-container">
+        <!-- HEADER -->
+        <div class="sis-header">
+            <h1><i class="fas fa-graduation-cap"></i> SIS · Student Information System</h1>
+            <div class="student-badge">
+                <i class="fas fa-user-circle"></i>
+                <span id="headerStudentName">Alex Rivera</span>
+                <span style="opacity:0.8;">| ID: 2024-9012</span>
+            </div>
+        </div>
+
+        <!-- TAB NAVIGATION -->
+        <div class="tab-nav">
+            <button class="tab-btn active" data-tab="dashboard"><i class="fas fa-home"></i> Dashboard</button>
+            <button class="tab-btn" data-tab="enrollment"><i class="fas fa-file-alt"></i> Enrollment</button>
+            <button class="tab-btn" data-tab="grades"><i class="fas fa-chart-bar"></i> Grades</button>
+            <button class="tab-btn" data-tab="advising"><i class="fas fa-comments"></i> Advising</button>
+        </div>
+
+        <!-- MAIN CONTENT AREA -->
+        <div class="main-content">
+            <!-- DASHBOARD PANEL -->
+            <div id="dashboard" class="tab-panel active">
+                <div class="grid-2col">
+                    <div class="card">
+                        <h3><i class="fas fa-calendar-alt"></i> Current Semester</h3>
+                        <p style="font-weight:600;">Fall 2025 <span class="badge" style="margin-left:0.5rem;">In Progress</span></p>
+                        <p><i class="fas fa-book-open"></i> Enrolled Credits: <strong>14</strong></p>
+                        <p><i class="fas fa-check-circle" style="color:#16a34a;"></i> Registration Status: <strong>Active</strong></p>
+                        <div style="margin-top:1rem;">
+                            <span class="badge"><i class="far fa-clock"></i> Advising hold: None</span>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <h3><i class="fas fa-user-tie"></i> Advisor</h3>
+                        <div style="display:flex; align-items:center; gap:1rem;">
+                            <i class="fas fa-user-tie" style="font-size:3rem; color:#334155;"></i>
+                            <div>
+                                <p><strong>Dr. Emily Carter</strong></p>
+                                <p style="color:#475569;">Dept. of Computer Science</p>
+                                <p><i class="fas fa-envelope"></i> e.carter@univ.edu</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card">
+                    <h3><i class="fas fa-bullhorn"></i> Announcements</h3>
+                    <ul style="list-style:none;">
+                        <li>📢 Enrollment for Spring 2026 opens Nov 10</li>
+                        <li>📅 Advising week: Oct 20-24 (required)</li>
+                        <li>📝 Grade deadline: Dec 15</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- ENROLLMENT PANEL -->
+            <div id="enrollment" class="tab-panel">
+                <div class="grid-2col">
+                    <div class="card">
+                        <h3><i class="fas fa-list-ul"></i> Current Enrollments (Fall 2025)</h3>
+                        <ul class="enrollment-list" id="currentEnrollmentList">
+                            <!-- dynamically filled -->
+                        </ul>
+                    </div>
+                    <div class="card">
+                        <h3><i class="fas fa-plus-circle"></i> Add / Drop Course</h3>
+                        <div class="form-group">
+                            <label>Select course to enroll</label>
+                            <select id="courseSelect" class="form-control">
+                                <option value="">-- Choose course --</option>
+                            </select>
+                        </div>
+                        <div class="flex-row">
+                            <button id="addCourseBtn" class="btn btn-primary"><i class="fas fa-plus"></i> Enroll</button>
+                            <button id="dropLastCourseBtn" class="btn btn-outline"><i class="fas fa-minus"></i> Drop last course</button>
+                        </div>
+                        <p id="enrollmentMessage" style="margin-top:1rem; font-weight:500;"></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- GRADES PANEL -->
+            <div id="grades" class="tab-panel">
+                <div class="grid-2col">
+                    <div class="card">
+                        <h3><i class="fas fa-table"></i> Grade Report</h3>
+                        <table class="grade-table" id="gradeTable">
+                            <thead><tr><th>Course</th><th>Credits</th><th>Grade</th><th>GPA Pts</th></tr></thead>
+                            <tbody id="gradeTableBody">
+                                <!-- dynamic -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="card">
+                        <h3><i class="fas fa-calculator"></i> GPA Summary</h3>
+                        <div style="display:flex; align-items:center; gap:1.5rem;">
+                            <div class="gpa-circle" id="gpaValue">3.45</div>
+                            <div>
+                                <p><strong>Cumulative GPA</strong></p>
+                                <p>Total Credits Earned: <span id="totalCredits">42</span></p>
+                            </div>
+                        </div>
+                        <hr style="margin:1.2rem 0;">
+                        <p><i class="fas fa-info-circle"></i> Simulation includes existing and added courses.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ADVISING PANEL -->
+            <div id="advising" class="tab-panel">
+                <div class="grid-2col">
+                    <div class="card">
+                        <h3><i class="fas fa-comment-dots"></i> Advising Session (Simulated)</h3>
+                        <div class="advisor-note">
+                            <p><i class="fas fa-quote-left"></i> I recommend focusing on Algorithms next term. You're on track for graduation in Spring 2026 if you maintain ≥3.0 GPA.</p>
+                            <p style="margin-top:0.5rem;"><strong>— Dr. Carter</strong></p>
+                        </div>
+                        <div style="margin-top:1rem;">
+                            <p><strong>Upcoming advising requirements:</strong></p>
+                            <ul style="margin-left:1.2rem;">
+                                <li>Complete advising hold removal before Nov 5</li>
+                                <li>Discuss Spring 2026 course plan</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <h3><i class="fas fa-calendar-check"></i> Recommended Next Semester</h3>
+                        <ul class="advising-list" id="recommendedList">
+                            <li><span><i class="fas fa-book"></i> CS 301 Algorithms</span><span class="badge">4 credits</span></li>
+                            <li><span><i class="fas fa-book"></i> MATH 211 Linear Algebra</span><span class="badge">3 credits</span></li>
+                            <li><span><i class="fas fa-book"></i> CS 240 Operating Systems</span><span class="badge">4 credits</span></li>
+                        </ul>
+                        <button id="simulateAdvisingHoldBtn" class="btn btn-outline btn-sm" style="margin-top:0.5rem;"><i class="fas fa-sync-alt"></i> Simulate hold removal</button>
+                        <p id="advisingStatus" class="badge" style="margin-top:0.8rem;">Advising hold active</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <i class="far fa-copyright"></i> SIS Prototype — Enrollment, Grades & Advising | All features simulated for demo
+        </footer>
+    </div>
+
+    <script>
+        (function() {
+            // ------------- DATA STORE (simulated) -------------
+            const student = {
+                name: 'Alex Rivera',
+                id: '2024-9012',
+                currentSemester: 'Fall 2025',
+                enrolledCourses: [
+                    { code: 'CS 101', title: 'Intro to CS', credits: 4, grade: 'A' },
+                    { code: 'MATH 201', title: 'Calculus II', credits: 4, grade: 'B+' },
+                    { code: 'ENG 105', title: 'Academic Writing', credits: 3, grade: 'A-' },
+                    { code: 'PHY 101', title: 'Physics I', credits: 4, grade: 'B' }
+                ],
+                // available courses for enrollment dropdown
+                availableCourses: [
+                    'CS 210 Data Structures', 'CS 230 Computer Architecture', 'MATH 210 Discrete Math',
+                    'PHY 102 Physics II', 'HIST 110 World History', 'ECON 101 Microeconomics'
+                ],
+                advisingHold: true
+            };
+
+            // UI update functions
+            function renderEnrollmentList() {
+                const list = document.getElementById('currentEnrollmentList');
+                if (!list) return;
+                list.innerHTML = '';
+                student.enrolledCourses.forEach(course => {
+                    const li = document.createElement('li');
+                    li.innerHTML = `
+                        <span><span class="course-code">${course.code}</span> <span style="color:#475569;">(${course.credits} cr)</span></span>
+                        <span class="badge">${course.grade || 'IP'}</span>
+                    `;
+                    list.appendChild(li);
+                });
+            }
+
+            function renderGradeTable() {
+                const tbody = document.getElementById('gradeTableBody');
+                if (!tbody) return;
+                tbody.innerHTML = '';
+                let totalCredits = 0;
+                let gradePointsSum = 0;
+                const gradeMap = { 'A':4.0, 'A-':3.7, 'B+':3.3, 'B':3.0, 'B-':2.7, 'C+':2.3, 'C':2.0, 'D':1.0, 'F':0.0 };
+
+                student.enrolledCourses.forEach(course => {
+                    const grade = course.grade || 'IP';
+                    const credits = course.credits;
+                    totalCredits += credits;
+                    const gradePoint = gradeMap[grade] || 0;
+                    gradePointsSum += gradePoint * credits;
+
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${course.code}</td>
+                        <td>${credits}</td>
+                        <td>${grade}</td>
+                        <td>${(gradePoint * credits).toFixed(1)}</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+
+                const gpa = totalCredits ? (gradePointsSum / totalCredits).toFixed(2) : '0.00';
+                document.getElementById('gpaValue').textContent = gpa;
+                document.getElementById('totalCredits').textContent = totalCredits;
+            }
+
+            function renderCourseSelect() {
+                const select = document.getElementById('courseSelect');
+                if (!select) return;
+                select.innerHTML = '<option value="">-- Choose course --</option>';
+                student.availableCourses.forEach(course => {
+                    const opt = document.createElement('option');
+                    opt.value = course;
+                    opt.textContent = course;
+                    select.appendChild(opt);
+                });
+            }
+
+            function updateAdvisingStatus() {
+                const statusEl = document.getElementById('advisingStatus');
+                if (statusEl) {
+                    if (student.advisingHold) {
+                        statusEl.textContent = 'Advising hold active';
+                        statusEl.className = 'badge warning';
+                    } else {
+                        statusEl.textContent = 'Advising hold removed ✓';
+                        statusEl.className = 'badge';
+                    }
+                }
+            }
+
+            function updateHeader() {
+                const hName = document.getElementById('headerStudentName');
+                if (hName) hName.textContent = student.name;
+            }
+
+            // Full refresh
+            function refreshUI() {
+                renderEnrollmentList();
+                renderGradeTable();
+                renderCourseSelect();
+                updateAdvisingStatus();
+                updateHeader();
+            }
+
+            // ------------- EVENT HANDLERS -------------
+            function handleAddCourse() {
+                const select = document.getElementById('courseSelect');
+                const messageEl = document.getElementById('enrollmentMessage');
+                if (!select || !messageEl) return;
+                const selected = select.value;
+                if (!selected) {
+                    messageEl.textContent = '⚠️ Please select a course first.';
+                    messageEl.style.color = '#b91c1c';
+                    return;
+                }
+                // Check duplicate
+                const codePart = selected.split(' ')[0];
+                const exists = student.enrolledCourses.some(c => c.code.startsWith(codePart));
+                if (exists) {
+                    messageEl.textContent = '⚠️ Already enrolled in a similar course.';
+                    messageEl.style.color = '#b91c1c';
+                    return;
+                }
+                // Create new course object
+                const credits = Math.floor(Math.random() * 2) + 3; // 3-4 credits
+                const grades = ['A', 'A-', 'B+', 'B', 'B-'];
+                const randomGrade = grades[Math.floor(Math.random() * grades.length)];
+                const newCourse = {
+                    code: selected,
+                    credits: credits,
+                    grade: randomGrade
+                };
+                student.enrolledCourses.push(newCourse);
+                messageEl.textContent = `✅ Enrolled in ${selected} (${credits} cr)`;
+                messageEl.style.color = '#166534';
+                refreshUI();
+            }
+
+            function handleDropLastCourse() {
+                const messageEl = document.getElementById('enrollmentMessage');
+                if (!messageEl) return;
+                if (student.enrolledCourses.length <= 1) {
+                    messageEl.textContent = '⚠️ Cannot drop the only remaining course.';
+                    messageEl.style.color = '#b91c1c';
+                    return;
+                }
+                const dropped = student.enrolledCourses.pop();
+                messageEl.textContent = `🗑️ Dropped last course: ${dropped.code}`;
+                messageEl.style.color = '#334155';
+                refreshUI();
+            }
+
+            function handleAdvisingHoldSimulation() {
+                student.advisingHold = false;
+                updateAdvisingStatus();
+                const statusEl = document.getElementById('advisingStatus');
+                if (statusEl) {
+                    statusEl.textContent = 'Advising hold removed ✓';
+                    statusEl.className = 'badge';
+                }
+                alert('Simulation: Advising hold has been removed. You are now eligible for enrollment.');
+            }
+
+            function setupTabNavigation() {
+                const tabButtons = document.querySelectorAll('.tab-btn');
+                const panels = {
+                    dashboard: document.getElementById('dashboard'),
+                    enrollment: document.getElementById('enrollment'),
+                    grades: document.getElementById('grades'),
+                    advising: document.getElementById('advising')
+                };
+
+                tabButtons.forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        tabButtons.forEach(b => b.classList.remove('active'));
+                        btn.classList.add('active');
+                        const tabId = btn.getAttribute('data-tab');
+                        Object.keys(panels).forEach(key => {
+                            panels[key].classList.remove('active');
+                        });
+                        if (panels[tabId]) panels[tabId].classList.add('active');
+                    });
+                });
+            }
+
+            // initialize everything
+            function init() {
+                refreshUI();
+                setupTabNavigation();
+
+                // wire buttons
+                document.getElementById('addCourseBtn')?.addEventListener('click', handleAddCourse);
+                document.getElementById('dropLastCourseBtn')?.addEventListener('click', handleDropLastCourse);
+                document.getElementById('simulateAdvisingHoldBtn')?.addEventListener('click', handleAdvisingHoldSimulation);
+            }
+
+            init();
+        })();
+    </script>
+</body>
+</html>
